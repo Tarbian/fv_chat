@@ -69,39 +69,4 @@ abstract class AppInputStyles {
           vertical: 14,
         ),
       );
-
-  static InputDecoration activeInput({String? hintText}) => InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(
-          color: AppColors.grey200,
-          fontSize: 14,
-        ),
-        filled: true,
-        fillColor: AppColors.grey400,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: AppColors.neon,
-            width: 2,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: AppColors.neon,
-            width: 2,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: AppColors.neon,
-            width: 2,
-          ),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-      );
 }
