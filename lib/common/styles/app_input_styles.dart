@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fv_chat/common/styles/app_colors.dart';
+import 'package:fv_chat/common/styles/app_text_styles.dart';
 
 abstract class AppInputStyles {
-  /// === стилі полів вводу ===
-
   static InputDecoration defaultInput({String? hintText}) => InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(
-          color: AppColors.grey200,
-          fontSize: 14,
-        ),
+        hintStyle: AppTextStyles.inputHint,
         filled: true,
         fillColor: AppColors.grey400,
         border: OutlineInputBorder(
@@ -32,10 +28,7 @@ abstract class AppInputStyles {
   static InputDecoration errorInput({String? hintText, String? errorText}) =>
       InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(
-          color: AppColors.grey200,
-          fontSize: 14,
-        ),
+        hintStyle: AppTextStyles.inputHint,
         errorText: errorText,
         errorStyle: const TextStyle(
           color: AppColors.alertRed,

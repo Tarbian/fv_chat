@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fv_chat/common/styles/app_colors.dart';
 
 abstract class AppTextStyles {
-  /// === Стилі тексту ===
   static const TextStyle h1 = TextStyle(
     fontFamily: 'Neutral Face',
     fontWeight: FontWeight.w400,
@@ -70,5 +70,19 @@ abstract class AppTextStyles {
     fontWeight: FontWeight.w400,
     fontSize: 10,
     height: 1.0,
+  );
+
+  static const TextStyle inputHint = TextStyle(
+    fontFamily: 'SF Pro Display',
+    fontWeight: FontWeight.w200,
+    fontSize: 14,
+    color: AppColors.grey200,
+  );
+
+  static const TextStyle errorInput = TextStyle(
+    fontFamily: 'SF Pro Display',
+    fontWeight: FontWeight.w200,
+    fontSize: 12,
+    color: AppColors.alertRed,
   );
 }

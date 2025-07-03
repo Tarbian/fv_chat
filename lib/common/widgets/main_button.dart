@@ -3,12 +3,12 @@ import 'package:fv_chat/common/styles/app_button_styles.dart';
 
 class MainButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const MainButton({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,
   });
 
   @override

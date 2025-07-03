@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fv_chat/common/styles/app_input_styles.dart';
 import 'package:fv_chat/common/styles/app_text_styles.dart';
 import 'package:fv_chat/common/widgets/cyrcle_button.dart';
-import 'package:fv_chat/common/widgets/disabled_main_button.dart';
 import 'package:fv_chat/common/widgets/main_button.dart';
 
 void main() {
@@ -47,9 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
               text: 'Log in',
               onPressed: () {},
             ),
-            DisabledMainButton(
+            const MainButton(
               text: 'Log in',
-              onPressed: () {},
+              onPressed: null,
             ),
             CircleButton(
               onPressed: () {},
