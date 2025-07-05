@@ -17,6 +17,8 @@ abstract class AppColors {
 
   static const Color neon = Color(0xFFD3F686);
 
+  static const Color neonSade = Color(0xFF8C9B69);
+
   static const Color neonBlur = Color(0xFFA9DF32);
 
   static const Color alertRed = Color(0xFFF64848);
