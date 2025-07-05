@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fv_chat/ui_kit/app_button_styles.dart';
-import 'package:fv_chat/ui_kit/app_input_styles.dart';
+import 'package:fv_chat/common/styles/app_input_styles.dart';
+import 'package:fv_chat/common/styles/app_text_styles.dart';
+import 'package:fv_chat/common/widgets/cyrcle_button.dart';
+import 'package:fv_chat/common/widgets/main_button.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,23 +35,22 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             TextField(
               decoration: AppInputStyles.defaultInput(hintText: 'Email'),
-              style: AppInputStyles.inputTextStyle,
+              style: AppTextStyles.body3,
             ),
             TextField(
               decoration: AppInputStyles.errorInput(
                   hintText: 'Password', errorText: 'Incorrect password'),
-              style: AppInputStyles.inputTextStyle,
+              style: AppTextStyles.body3,
             ),
-            // Через готові віджети
-            AppButtonStyles.mainButton(
+            MainButton(
               text: 'Log in',
               onPressed: () {},
             ),
-            AppButtonStyles.offMainButton(
+            const MainButton(
               text: 'Log in',
-              onPressed: () {},
+              onPressed: null,
             ),
-            AppButtonStyles.circle(
+            CircleButton(
               onPressed: () {},
             ),
           ],
