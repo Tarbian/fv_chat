@@ -60,6 +60,13 @@ class ChatBubble extends StatelessWidget {
               color: isUser ? AppColors.darkGrey800 : AppColors.white,
             ),
             code: AppTextStyles.code,
+            codeblockDecoration: BoxDecoration(
+              color: AppColors.grey600.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(
+                width: 1,
+              ),
+            ),
             blockquoteDecoration: BoxDecoration(
               color: AppColors.grey400.withOpacity(0.4),
               border: const Border(

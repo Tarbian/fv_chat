@@ -92,10 +92,11 @@ abstract class AppTextStyles {
     fontSize: 16,
     color: AppColors.grey200,
   );
+  
   static const TextStyle code = TextStyle(
     fontFamily: 'monospace',
     fontWeight: FontWeight.w400,
-    backgroundColor: AppColors.grey400,
+    backgroundColor: Colors.transparent,
     color: AppColors.neon,
   );
 }
