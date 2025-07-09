@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fv_chat/common/styles/app_button_styles.dart';
+import 'package:fv_chat/ui/styles/app_button_styles.dart';
 
 class MainButton extends StatelessWidget {
   final String text;

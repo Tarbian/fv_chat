@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fv_chat/common/styles/app_button_styles.dart';
+import 'package:fv_chat/ui/styles/app_button_styles.dart';
 
 class CircleButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final IconData icon;
 
   const CircleButton({

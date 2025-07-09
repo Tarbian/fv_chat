@@ -26,5 +26,7 @@ abstract class AppButtonStyles {
     shape: const CircleBorder(),
     padding: const EdgeInsets.all(12),
     minimumSize: const Size(40, 40),
+    disabledBackgroundColor: AppColors.grey200,
+    disabledForegroundColor: AppColors.grey600,
   );
 }
