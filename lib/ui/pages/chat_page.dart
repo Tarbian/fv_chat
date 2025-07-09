@@ -54,22 +54,10 @@ class _ChatPageState extends State<ChatPage> {
                     },
                   ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: AppColors.grey600,
-              border: Border(
-                top: BorderSide(
-                  color: AppColors.grey400,
-                  width: 1,
-                ),
-              ),
-            ),
-            child: InputRow(
-              controller: _messageController,
-              onSend: _sendMessage,
-              isWaitingForResponse: _isWaitingForResponse,
-            ),
+          InputRow(
+            controller: _messageController,
+            onSend: _sendMessage,
+            isWaitingForResponse: _isWaitingForResponse,
           ),
         ],
       ),
