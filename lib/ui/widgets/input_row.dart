@@ -18,6 +18,7 @@ class InputRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: AppColors.grey600,
         border: Border(

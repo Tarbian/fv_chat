@@ -34,32 +34,38 @@ class _ChatPageState extends State<ChatPage> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _messages.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Ask somethig!',
-                      style: AppTextStyles.backgoundHint,
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: _messages.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Ask something!',
+                        style: AppTextStyles.backgoundHint,
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
+                        return _buildMessageBubble(message);
+                      },
                     ),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final message = _messages[index];
-                      return _buildMessageBubble(message);
-                    },
-                  ),
-          ),
-          InputRow(
-            controller: _messageController,
-            onSend: _sendMessage,
-            isWaitingForResponse: _isWaitingForResponse,
-          ),
-        ],
+            ),
+            InputRow(
+              controller: _messageController,
+              onSend: _sendMessage,
+              isWaitingForResponse: _isWaitingForResponse,
+            ),
+          ],
+        ),
       ),
     );
   }
