@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fv_chat/common/styles/app_colors.dart';
+import 'package:fv_chat/ui/styles/app_colors.dart';
 
 abstract class AppTextStyles {
   static const TextStyle h1 = TextStyle(
@@ -74,7 +74,7 @@ abstract class AppTextStyles {
 
   static const TextStyle inputHint = TextStyle(
     fontFamily: 'SF Pro Display',
-    fontWeight: FontWeight.w200,
+    fontWeight: FontWeight.w400,
     fontSize: 14,
     color: AppColors.grey200,
   );
@@ -84,5 +84,12 @@ abstract class AppTextStyles {
     fontWeight: FontWeight.w200,
     fontSize: 12,
     color: AppColors.alertRed,
+  );
+
+  static const TextStyle backgoundHint = TextStyle(
+    fontFamily: 'SF Pro Display',
+    fontWeight: FontWeight.w400,
+    fontSize: 16,
+    color: AppColors.grey200,
   );
 }

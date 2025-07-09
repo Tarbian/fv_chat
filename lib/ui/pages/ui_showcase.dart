@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fv_chat/common/styles/app_input_styles.dart';
-import 'package:fv_chat/common/styles/app_text_styles.dart';
-import 'package:fv_chat/common/widgets/cyrcle_button.dart';
-import 'package:fv_chat/common/widgets/main_button.dart';
+import 'package:fv_chat/ui/styles/app_input_styles.dart';
+import 'package:fv_chat/ui/styles/app_text_styles.dart';
+import 'package:fv_chat/ui/widgets/cyrcle_button.dart';
+import 'package:fv_chat/ui/widgets/main_button.dart';
 
 class UiShowcase extends StatefulWidget {
   const UiShowcase({super.key});
@@ -24,7 +24,9 @@ class _UiShowcaseState extends State<UiShowcase> {
             ),
             TextField(
               decoration: AppInputStyles.errorInput(
-                  hintText: 'Password', errorText: 'Incorrect password'),
+                hintText: 'Password',
+                errorText: 'Incorrect password',
+              ),
               style: AppTextStyles.body3,
             ),
             MainButton(

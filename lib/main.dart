@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fv_chat/common/styles/app_colors.dart';
-import 'package:fv_chat/pages/chat_page.dart';
+import 'package:fv_chat/ui/styles/app_colors.dart';
+import 'package:fv_chat/ui/pages/chat_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +14,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: AppColors.neon,
-          selectionColor: AppColors.neonSade,
-          selectionHandleColor: AppColors.neon,
+        useMaterial3: false,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.neon,
+          brightness: Brightness.dark,
         ),
       ),
       home: const ChatPage(),

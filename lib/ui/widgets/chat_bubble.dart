@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fv_chat/common/styles/app_colors.dart';
-import 'package:fv_chat/common/styles/app_text_styles.dart';
+import 'package:fv_chat/ui/styles/app_colors.dart';
+import 'package:fv_chat/ui/styles/app_text_styles.dart';
 
 class ChatBubble extends StatelessWidget {
   final String message;
