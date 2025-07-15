@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fv_chat/model/entities/chat_message.dart';
 import 'package:fv_chat/model/entities/mock_data.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/styles/app_text_styles.dart';
 import 'package:fv_chat/ui/widgets/chat_bubble.dart';
 import 'package:fv_chat/ui/widgets/input_row.dart';
+import 'package:fv_chat/ui/widgets/small_button.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -32,7 +34,9 @@ class _ChatPageState extends State<ChatPage> {
           style: AppTextStyles.h1.copyWith(color: AppColors.white),
         ),
         centerTitle: true,
-        elevation: 0,
+        elevation: 2,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -122,19 +126,79 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+  }
+
+  void _regenerateResponse(List<ChatMessage> messages) {
+    if (_isWaitingForResponse || messages.isEmpty) return;
+
+    if (messages.isNotEmpty && !messages.last.isUser) {
+      setState(() {
+        messages.removeLast();
+      });
+    }
+
+    setState(() {
+      _isWaitingForResponse = true;
+    });
+
+    Future.delayed(const Duration(seconds: 1), () {
+      final botMessage = ChatMessage(
+        text: _mockResponse,
+        isUser: false,
+        timestamp: DateTime.now(),
+      );
+
+      setState(() {
+        messages.add(botMessage);
+        _isWaitingForResponse = false;
+      });
+
+      _scrollToBottom();
+    });
+  }
+
   Widget _buildMessageBubble(ChatMessage message) {
+    final isBot = !message.isUser;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment:
-            message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment:
+            message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          ChatBubble(
-            message: message.text,
-            isUser: message.isUser,
-            backgroundColor:
-                message.isUser ? AppColors.neon : AppColors.grey400,
+          Row(
+            mainAxisAlignment: message.isUser
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
+            children: [
+              ChatBubble(
+                message: message.text,
+                isUser: message.isUser,
+                backgroundColor:
+                    message.isUser ? AppColors.neon : AppColors.grey400,
+              ),
+            ],
           ),
+          if (isBot)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SmallButton(
+                  icon: const Icon(Icons.copy),
+                  onPressed: () {
+                    _copyToClipboard(message.text);
+                  },
+                ),
+                SmallButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    _regenerateResponse(_messages);
+                  },
+                ),
+              ],
+            ),
         ],
       ),
     );
