@@ -33,28 +33,8 @@ class ChatBubble extends StatelessWidget {
         ),
         child: MarkdownBody(
           data: message,
-          onTapLink: (text, href, title) async {
-            if (href == null) return;
-
-            final uri = Uri.tryParse(href);
-            if (uri == null) {
-              debugPrint("⚠️ Invalid URL: $href");
-              return;
-            }
-
-            try {
-              final launched = await launchUrl(
-                uri,
-                mode: LaunchMode.externalApplication,
-              );
-
-              if (!launched) {
-                debugPrint("❌ Error: $href");
-              }
-            } catch (e) {
-              debugPrint("❌ Some error: $e");
-            }
-          },
+          onTapLink: (text, href, title) async =>
+              await _launchUrl(context, href),
           styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
             p: AppTextStyles.body1.copyWith(
               color: isUser ? AppColors.darkGrey800 : AppColors.white,
@@ -63,9 +43,7 @@ class ChatBubble extends StatelessWidget {
             codeblockDecoration: BoxDecoration(
               color: AppColors.grey600.withOpacity(0.4),
               borderRadius: BorderRadius.circular(5),
-              border: Border.all(
-                width: 1,
-              ),
+              border: Border.all(width: 1),
             ),
             blockquoteDecoration: BoxDecoration(
               color: AppColors.grey400.withOpacity(0.4),
@@ -80,5 +58,43 @@ class ChatBubble extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _launchUrl(BuildContext context, String? href) async {
+    if (href == null) return;
+
+    final uri = Uri.tryParse(href);
+    if (uri == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Invalid URL: $href"),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Could not launch: $href"),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error opening link: $e"),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 }

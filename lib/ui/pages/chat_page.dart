@@ -40,9 +40,7 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
+        onTap: () => FocusScope.of(context).unfocus(),
         child: Column(
           children: [
             Expanded(
@@ -134,14 +132,10 @@ class _ChatPageState extends State<ChatPage> {
     if (_isWaitingForResponse || messages.isEmpty) return;
 
     if (messages.isNotEmpty && !messages.last.isUser) {
-      setState(() {
-        messages.removeLast();
-      });
+      setState(() => messages.removeLast());
     }
 
-    setState(() {
-      _isWaitingForResponse = true;
-    });
+    setState(() => _isWaitingForResponse = true);
 
     Future.delayed(const Duration(seconds: 1), () {
       final botMessage = ChatMessage(
@@ -187,15 +181,11 @@ class _ChatPageState extends State<ChatPage> {
               children: [
                 SmallButton(
                   icon: const Icon(Icons.copy),
-                  onPressed: () {
-                    _copyToClipboard(message.text);
-                  },
+                  onPressed: () => _copyToClipboard(message.text),
                 ),
                 SmallButton(
                   icon: const Icon(Icons.refresh),
-                  onPressed: () {
-                    _regenerateResponse(_messages);
-                  },
+                  onPressed: () => _regenerateResponse(_messages),
                 ),
               ],
             ),
