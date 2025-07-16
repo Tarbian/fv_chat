@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fv_chat/model/entities/chat_message.dart';
 import 'package:fv_chat/model/entities/mock_data.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/styles/app_text_styles.dart';
 import 'package:fv_chat/ui/widgets/chat_bubble.dart';
 import 'package:fv_chat/ui/widgets/input_row.dart';
+import 'package:fv_chat/ui/widgets/small_button.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -19,7 +21,7 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _scrollController = ScrollController();
   final String _mockResponse = MockData.mockResponse;
 
-  bool _isWaitingForResponse = false;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -32,34 +34,40 @@ class _ChatPageState extends State<ChatPage> {
           style: AppTextStyles.h1.copyWith(color: AppColors.white),
         ),
         centerTitle: true,
-        elevation: 0,
+        elevation: 2,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _messages.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Ask somethig!',
-                      style: AppTextStyles.backgoundHint,
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Column(
+          children: [
+            Expanded(
+              child: _messages.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Ask something!',
+                        style: AppTextStyles.backgoundHint,
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
+                        return _buildMessageBubble(message);
+                      },
                     ),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final message = _messages[index];
-                      return _buildMessageBubble(message);
-                    },
-                  ),
-          ),
-          InputRow(
-            controller: _messageController,
-            onSend: _sendMessage,
-            isWaitingForResponse: _isWaitingForResponse,
-          ),
-        ],
+            ),
+            InputRow(
+              controller: _messageController,
+              onSend: _sendMessage,
+              isWaitingForResponse: _isLoading,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -72,7 +80,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() {
-    if (_isWaitingForResponse || _messageController.text.trim().isEmpty) return;
+    if (_isLoading || _messageController.text.trim().isEmpty) return;
 
     final userMessage = ChatMessage(
       text: _messageController.text,
@@ -82,7 +90,7 @@ class _ChatPageState extends State<ChatPage> {
 
     setState(() {
       _messages.add(userMessage);
-      _isWaitingForResponse = true;
+      _isLoading = true;
     });
 
     _messageController.clear();
@@ -97,7 +105,7 @@ class _ChatPageState extends State<ChatPage> {
 
       setState(() {
         _messages.add(botMessage);
-        _isWaitingForResponse = false;
+        _isLoading = false;
       });
 
       _scrollToBottom();
@@ -116,19 +124,71 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+  }
+
+  void _regenerateResponse(List<ChatMessage> messages) {
+    if (_isLoading || messages.isEmpty) return;
+
+    if (messages.isNotEmpty && !messages.last.isUser) {
+      setState(() => messages.removeLast());
+    }
+
+    setState(() => _isLoading = true);
+
+    Future.delayed(const Duration(seconds: 1), () {
+      final botMessage = ChatMessage(
+        text: _mockResponse,
+        isUser: false,
+        timestamp: DateTime.now(),
+      );
+
+      setState(() {
+        messages.add(botMessage);
+        _isLoading = false;
+      });
+
+      _scrollToBottom();
+    });
+  }
+
   Widget _buildMessageBubble(ChatMessage message) {
+    final isBot = !message.isUser;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment:
-            message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment:
+            message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          ChatBubble(
-            message: message.text,
-            isUser: message.isUser,
-            backgroundColor:
-                message.isUser ? AppColors.neon : AppColors.grey400,
+          Row(
+            mainAxisAlignment: message.isUser
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
+            children: [
+              ChatBubble(
+                message: message.text,
+                isUser: message.isUser,
+                backgroundColor:
+                    message.isUser ? AppColors.neon : AppColors.grey400,
+              ),
+            ],
           ),
+          if (isBot)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SmallButton(
+                  icon: const Icon(Icons.copy),
+                  onPressed: () => _copyToClipboard(message.text),
+                ),
+                SmallButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () => _regenerateResponse(_messages),
+                ),
+              ],
+            ),
         ],
       ),
     );

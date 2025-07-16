@@ -3,6 +3,7 @@ import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/pages/chat_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        useMaterial3: false,
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.neon,
           brightness: Brightness.dark,

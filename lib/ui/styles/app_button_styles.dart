@@ -29,4 +29,13 @@ abstract class AppButtonStyles {
     disabledBackgroundColor: AppColors.grey200,
     disabledForegroundColor: AppColors.grey600,
   );
+
+  static ButtonStyle smallButtonStyle = ElevatedButton.styleFrom(
+    iconColor: AppColors.lightGrey,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    visualDensity: VisualDensity.compact,
+  );
 }
