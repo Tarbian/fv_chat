@@ -21,7 +21,7 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _scrollController = ScrollController();
   final String _mockResponse = MockData.mockResponse;
 
-  bool _isWaitingForResponse = false;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +64,7 @@ class _ChatPageState extends State<ChatPage> {
             InputRow(
               controller: _messageController,
               onSend: _sendMessage,
-              isWaitingForResponse: _isWaitingForResponse,
+              isWaitingForResponse: _isLoading,
             ),
           ],
         ),
@@ -80,7 +80,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() {
-    if (_isWaitingForResponse || _messageController.text.trim().isEmpty) return;
+    if (_isLoading || _messageController.text.trim().isEmpty) return;
 
     final userMessage = ChatMessage(
       text: _messageController.text,
@@ -90,7 +90,7 @@ class _ChatPageState extends State<ChatPage> {
 
     setState(() {
       _messages.add(userMessage);
-      _isWaitingForResponse = true;
+      _isLoading = true;
     });
 
     _messageController.clear();
@@ -105,7 +105,7 @@ class _ChatPageState extends State<ChatPage> {
 
       setState(() {
         _messages.add(botMessage);
-        _isWaitingForResponse = false;
+        _isLoading = false;
       });
 
       _scrollToBottom();
@@ -129,13 +129,13 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _regenerateResponse(List<ChatMessage> messages) {
-    if (_isWaitingForResponse || messages.isEmpty) return;
+    if (_isLoading || messages.isEmpty) return;
 
     if (messages.isNotEmpty && !messages.last.isUser) {
       setState(() => messages.removeLast());
     }
 
-    setState(() => _isWaitingForResponse = true);
+    setState(() => _isLoading = true);
 
     Future.delayed(const Duration(seconds: 1), () {
       final botMessage = ChatMessage(
@@ -146,7 +146,7 @@ class _ChatPageState extends State<ChatPage> {
 
       setState(() {
         messages.add(botMessage);
-        _isWaitingForResponse = false;
+        _isLoading = false;
       });
 
       _scrollToBottom();
