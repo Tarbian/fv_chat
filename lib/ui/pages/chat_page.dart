@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fv_chat/model/entities/chat_message.dart';
-import 'package:fv_chat/model/entities/mock_data.dart';
+import 'package:fv_chat/data/entities/chat_message.dart';
+import 'package:fv_chat/data/providers/ollama_generator.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/styles/app_text_styles.dart';
 import 'package:fv_chat/ui/widgets/chat_bubble.dart';
 import 'package:fv_chat/ui/widgets/input_row.dart';
 import 'package:fv_chat/ui/widgets/small_button.dart';
+import 'package:fv_chat/data/ai_config.dart';
+import 'package:fv_chat/data/repository/data_repository_impl.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -19,9 +21,25 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
-  final String _mockResponse = MockData.mockResponse;
 
+  late final DataRepositoryImpl _repository;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final ollama = OllamaGenerator(
+      model: AIConfig.defaultmodel,
+      ollamaUrl:
+          'http://${AIConfig.defaultOllamaIP}:${AIConfig.defaultOllamaPort}/api/chat',
+    );
+
+    _repository = DataRepositoryImpl(
+      chatHistory: _messages,
+      generator: ollama,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,39 +96,45 @@ class _ChatPageState extends State<ChatPage> {
     _scrollController.dispose();
     super.dispose();
   }
+Future<void> _sendMessage() async {
+  if (_isLoading || _messageController.text.trim().isEmpty) return;
 
-  void _sendMessage() {
-    if (_isLoading || _messageController.text.trim().isEmpty) return;
+  final inputText = _messageController.text.trim();
 
-    final userMessage = ChatMessage(
-      text: _messageController.text,
-      isUser: true,
-      timestamp: DateTime.now(),
-    );
+  final userMessage = ChatMessage(
+    text: inputText,
+    isUser: true,
+    timestamp: DateTime.now(),
+  );
+
+  setState(() {
+    _messages.add(userMessage);
+    _isLoading = true;
+  });
+
+  _messageController.clear();
+  _scrollToBottom();
+
+  try {
+    final botMessage = await _repository.getNextMessage();
 
     setState(() {
-      _messages.add(userMessage);
-      _isLoading = true;
+      _messages.add(botMessage);
+      _isLoading = false;
     });
 
-    _messageController.clear();
     _scrollToBottom();
-
-    Future.delayed(const Duration(seconds: 1), () {
-      final botMessage = ChatMessage(
-        text: _mockResponse,
-        isUser: false,
-        timestamp: DateTime.now(),
-      );
-
-      setState(() {
-        _messages.add(botMessage);
-        _isLoading = false;
-      });
-
-      _scrollToBottom();
+  } catch (e) {
+    setState(() {
+      _messages.removeLast();
+      _messageController.text = inputText;
+      _isLoading = false;
     });
+
+    _scrollToBottom();
+    _showError(e.toString());
   }
+}
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -128,21 +152,17 @@ class _ChatPageState extends State<ChatPage> {
     Clipboard.setData(ClipboardData(text: text));
   }
 
-  void _regenerateResponse(List<ChatMessage> messages) {
+  void _regenerateResponse(List<ChatMessage> messages) async {
     if (_isLoading || messages.isEmpty) return;
 
-    if (messages.isNotEmpty && !messages.last.isUser) {
+    if (!messages.last.isUser) {
       setState(() => messages.removeLast());
     }
 
     setState(() => _isLoading = true);
 
-    Future.delayed(const Duration(seconds: 1), () {
-      final botMessage = ChatMessage(
-        text: _mockResponse,
-        isUser: false,
-        timestamp: DateTime.now(),
-      );
+    try {
+      final botMessage = await _repository.getNextMessage();
 
       setState(() {
         messages.add(botMessage);
@@ -150,7 +170,16 @@ class _ChatPageState extends State<ChatPage> {
       });
 
       _scrollToBottom();
-    });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showError(e.toString());
+    }
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: AppColors.alertRed),
+    );
   }
 
   Widget _buildMessageBubble(ChatMessage message) {
