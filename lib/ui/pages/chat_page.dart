@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fv_chat/data/ai_config.dart';
 import 'package:fv_chat/data/entities/chat_message.dart';
-import 'package:fv_chat/data/providers/ollama_generator.dart';
+import 'package:fv_chat/data/providers/groq_generator.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/styles/app_text_styles.dart';
 import 'package:fv_chat/ui/widgets/chat_bubble.dart';
 import 'package:fv_chat/ui/widgets/input_row.dart';
 import 'package:fv_chat/ui/widgets/small_button.dart';
-import 'package:fv_chat/data/ai_config.dart';
 import 'package:fv_chat/data/repository/data_repository_impl.dart';
 
 class ChatPage extends StatefulWidget {
@@ -29,15 +29,11 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
-    final ollama = OllamaGenerator(
-      model: AIConfig.defaultmodel,
-      ollamaUrl:
-          'http://${AIConfig.defaultOllamaIP}:${AIConfig.defaultOllamaPort}/api/chat',
-    );
-
+    final groq = GroqGenerator(apiKey: AIConfig.groqApiKey);
+    
     _repository = DataRepositoryImpl(
       chatHistory: _messages,
-      generator: ollama,
+      generator: groq,
     );
   }
 
@@ -96,45 +92,46 @@ class _ChatPageState extends State<ChatPage> {
     _scrollController.dispose();
     super.dispose();
   }
-Future<void> _sendMessage() async {
-  if (_isLoading || _messageController.text.trim().isEmpty) return;
 
-  final inputText = _messageController.text.trim();
+  Future<void> _sendMessage() async {
+    if (_isLoading || _messageController.text.trim().isEmpty) return;
 
-  final userMessage = ChatMessage(
-    text: inputText,
-    isUser: true,
-    timestamp: DateTime.now(),
-  );
+    final inputText = _messageController.text.trim();
 
-  setState(() {
-    _messages.add(userMessage);
-    _isLoading = true;
-  });
-
-  _messageController.clear();
-  _scrollToBottom();
-
-  try {
-    final botMessage = await _repository.getNextMessage();
+    final userMessage = ChatMessage(
+      text: inputText,
+      isUser: true,
+      timestamp: DateTime.now(),
+    );
 
     setState(() {
-      _messages.add(botMessage);
-      _isLoading = false;
+      _messages.add(userMessage);
+      _isLoading = true;
     });
 
+    _messageController.clear();
     _scrollToBottom();
-  } catch (e) {
-    setState(() {
-      _messages.removeLast();
-      _messageController.text = inputText;
-      _isLoading = false;
-    });
 
-    _scrollToBottom();
-    _showError(e.toString());
+    try {
+      final botMessage = await _repository.getNextMessage();
+
+      setState(() {
+        _messages.add(botMessage);
+        _isLoading = false;
+      });
+
+      _scrollToBottom();
+    } catch (e) {
+      setState(() {
+        _messages.removeLast();
+        _messageController.text = inputText;
+        _isLoading = false;
+      });
+
+      _scrollToBottom();
+      _showError(e.toString());
+    }
   }
-}
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {

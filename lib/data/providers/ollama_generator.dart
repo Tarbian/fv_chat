@@ -4,13 +4,14 @@ import 'package:fv_chat/data/generator/ai_generator.dart';
 
 class OllamaGenerator extends AIGenerator {
   final String model;
-  final String ollamaUrl;
+  final String baseUrl;
   final int maxTokens;
   final Dio _dio;
 
   OllamaGenerator({
-    required this.model,
-    required this.ollamaUrl,
+    this.model = AIConfig.defaultOllamamodel,
+    this.baseUrl =
+        'http://${AIConfig.defaultOllamaIP}:${AIConfig.defaultOllamaPort}/api/chat',
     this.maxTokens = AIConfig.defaultMaxTokens,
     Dio? dio,
   }) : _dio = dio ?? Dio();
@@ -19,7 +20,7 @@ class OllamaGenerator extends AIGenerator {
   Future<String> sendChatHistory(List<Map<String, String>> messages) async {
     try {
       final response = await _dio.post(
-        ollamaUrl,
+        baseUrl,
         data: {
           'model': model,
           'messages': messages,
