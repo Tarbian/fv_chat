@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class AIConfig {
+abstract class AIConfig {
   static String get groqApiKey => dotenv.env['GROQ_API_KEY'] ?? '';
   static const defaultOllamamodel = 'qwen2.5:0.5b';
   static const defaultMaxTokens = 128;

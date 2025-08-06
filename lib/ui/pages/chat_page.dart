@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fv_chat/data/di.dart';
+import 'package:fv_chat/di/di.dart';
 import 'package:fv_chat/domain/entities/chat_message.dart';
 import 'package:fv_chat/data/ai_generators/groq_generator.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
@@ -29,11 +29,8 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
-    final groq = getIt<GroqGenerator>();
-    
     _repository = AIRepositoryImpl(
-      chatHistory: _messages,
-      generator: groq,
+      generator: getIt<GroqGenerator>(),
     );
   }
 
@@ -113,7 +110,7 @@ class _ChatPageState extends State<ChatPage> {
     _scrollToBottom();
 
     try {
-      final botMessage = await _repository.getNextMessage();
+      final botMessage = await _repository.getNextMessage(_messages);
 
       setState(() {
         _messages.add(botMessage);
@@ -159,7 +156,7 @@ class _ChatPageState extends State<ChatPage> {
     setState(() => _isLoading = true);
 
     try {
-      final botMessage = await _repository.getNextMessage();
+      final botMessage = await _repository.getNextMessage(_messages);
 
       setState(() {
         messages.add(botMessage);

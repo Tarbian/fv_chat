@@ -10,7 +10,7 @@ class MockRepositoryImpl implements AIRepository {
   }) : _mockDataManager = mockDataManager ?? MockDataManager();
 
   @override
-  Future<ChatMessage> getNextMessage() async {
+  Future<ChatMessage> getNextMessage(List<ChatMessage> chatHistory) async {
     final mockResponse = _mockDataManager.getMockResponse();
 
     return ChatMessage(

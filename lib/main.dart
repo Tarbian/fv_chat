@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fv_chat/data/di.dart';
+import 'package:fv_chat/di/di.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/pages/chat_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
