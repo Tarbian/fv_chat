@@ -1,12 +1,12 @@
-import 'package:fv_chat/data/entities/chat_message.dart';
-import 'package:fv_chat/data/repository/data_repository.dart';
-import 'package:fv_chat/data/generator/ai_generator.dart';
+import 'package:fv_chat/domain/entities/chat_message.dart';
+import 'package:fv_chat/domain/repository/ai_repository.dart';
+import 'package:fv_chat/data/ai_generators/base/ai_generator.dart';
 
-class DataRepositoryImpl implements DataRepository {
+class AIRepositoryImpl implements AIRepository {
   final List<ChatMessage> chatHistory;
   final AIGenerator generator;
 
-  DataRepositoryImpl({
+  AIRepositoryImpl({
     required this.chatHistory,
     required this.generator,
   });

@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:fv_chat/data/generator/ai_generator.dart';
-import 'package:fv_chat/data/ai_config.dart';
+import 'package:fv_chat/data/ai_generators/base/ai_generator.dart';
+import 'package:fv_chat/data/ai_generators/base/ai_config.dart';
 
-class GroqGenerator extends AIGenerator {
+class GroqGenerator implements AIGenerator {
   final String apiKey;
   final String model;
   final String baseUrl;

@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_string_escapes
+
 abstract class MockData {
   static const mockResponse = """
 ---

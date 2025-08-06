@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fv_chat/data/ai_config.dart';
-import 'package:fv_chat/data/entities/chat_message.dart';
-import 'package:fv_chat/data/providers/groq_generator.dart';
+import 'package:fv_chat/data/ai_generators/base/ai_config.dart';
+import 'package:fv_chat/domain/entities/chat_message.dart';
+import 'package:fv_chat/data/ai_generators/groq_generator.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/styles/app_text_styles.dart';
 import 'package:fv_chat/ui/widgets/chat_bubble.dart';
 import 'package:fv_chat/ui/widgets/input_row.dart';
 import 'package:fv_chat/ui/widgets/small_button.dart';
-import 'package:fv_chat/data/repository/data_repository_impl.dart';
+import 'package:fv_chat/data/repository/ai_repository_impl.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -22,7 +22,7 @@ class _ChatPageState extends State<ChatPage> {
   final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
 
-  late final DataRepositoryImpl _repository;
+  late final AIRepositoryImpl _repository;
   bool _isLoading = false;
 
   @override
@@ -31,7 +31,7 @@ class _ChatPageState extends State<ChatPage> {
 
     final groq = GroqGenerator(apiKey: AIConfig.groqApiKey);
     
-    _repository = DataRepositoryImpl(
+    _repository = AIRepositoryImpl(
       chatHistory: _messages,
       generator: groq,
     );

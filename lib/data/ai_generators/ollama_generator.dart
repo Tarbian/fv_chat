@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:fv_chat/data/ai_config.dart';
-import 'package:fv_chat/data/generator/ai_generator.dart';
+import 'package:fv_chat/data/ai_generators/base/ai_config.dart';
+import 'package:fv_chat/data/ai_generators/base/ai_generator.dart';
 
-class OllamaGenerator extends AIGenerator {
+class OllamaGenerator implements AIGenerator {
   final String model;
   final String baseUrl;
   final int maxTokens;
