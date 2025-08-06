@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fv_chat/data/ai_generators/base/ai_config.dart';
+import 'package:fv_chat/data/di.dart';
 import 'package:fv_chat/domain/entities/chat_message.dart';
 import 'package:fv_chat/data/ai_generators/groq_generator.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
@@ -29,7 +29,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
-    final groq = GroqGenerator(apiKey: AIConfig.groqApiKey);
+    final groq = getIt<GroqGenerator>();
     
     _repository = AIRepositoryImpl(
       chatHistory: _messages,
