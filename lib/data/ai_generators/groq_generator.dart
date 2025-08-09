@@ -1,20 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:fv_chat/data/ai_generators/base/ai_generator.dart';
-import 'package:fv_chat/data/ai_generators/base/ai_config.dart';
+import 'package:fv_chat/data/ai_generators/base/groq_config.dart';
 
 class GroqGenerator implements AIGenerator {
-  final String apiKey;
-  final String model;
-  final String baseUrl;
+  final GroqConfig config;
   final Dio _dio;
 
   GroqGenerator({
-    required this.apiKey,
-    this.model = AIConfig.defaultGroqmodel,
-    this.baseUrl =
-        'https://api.groq.com/openai/v1/chat/completions',
+    required this.config,
     Dio? dio,
   }) : _dio = dio ?? Dio();
+
+  String get apiKey => config.apiKey;
+  String get model => config.model;
+  String get baseUrl => config.baseUrl;
 
   @override
   Future<String> sendChatHistory(List<Map<String, String>> messages) async {

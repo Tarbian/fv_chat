@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fv_chat/di/di.dart';
 import 'package:fv_chat/domain/entities/chat_message.dart';
-import 'package:fv_chat/data/ai_generators/groq_generator.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/styles/app_text_styles.dart';
 import 'package:fv_chat/ui/widgets/chat_bubble.dart';
@@ -21,17 +20,12 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
-
-  late final AIRepositoryImpl _repository;
+  final _repository = getIt<AIRepositoryImpl>();
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-
-    _repository = AIRepositoryImpl(
-      generator: getIt<GroqGenerator>(),
-    );
   }
 
   @override
