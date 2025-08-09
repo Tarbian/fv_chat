@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fv_chat/model/entities/chat_message.dart';
-import 'package:fv_chat/model/entities/mock_data.dart';
+import 'package:fv_chat/di/di.dart';
+import 'package:fv_chat/domain/entities/chat_message.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/styles/app_text_styles.dart';
 import 'package:fv_chat/ui/widgets/chat_bubble.dart';
 import 'package:fv_chat/ui/widgets/input_row.dart';
 import 'package:fv_chat/ui/widgets/small_button.dart';
+import 'package:fv_chat/data/repository/ai_repository_impl.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -19,9 +20,13 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
-  final String _mockResponse = MockData.mockResponse;
-
+  final _repository = getIt<AIRepositoryImpl>();
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,11 +84,13 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     if (_isLoading || _messageController.text.trim().isEmpty) return;
 
+    final inputText = _messageController.text.trim();
+
     final userMessage = ChatMessage(
-      text: _messageController.text,
+      text: inputText,
       isUser: true,
       timestamp: DateTime.now(),
     );
@@ -96,12 +103,8 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.clear();
     _scrollToBottom();
 
-    Future.delayed(const Duration(seconds: 1), () {
-      final botMessage = ChatMessage(
-        text: _mockResponse,
-        isUser: false,
-        timestamp: DateTime.now(),
-      );
+    try {
+      final botMessage = await _repository.getNextMessage(_messages);
 
       setState(() {
         _messages.add(botMessage);
@@ -109,7 +112,16 @@ class _ChatPageState extends State<ChatPage> {
       });
 
       _scrollToBottom();
-    });
+    } catch (e) {
+      setState(() {
+        _messages.removeLast();
+        _messageController.text = inputText;
+        _isLoading = false;
+      });
+
+      _scrollToBottom();
+      _showError(e.toString());
+    }
   }
 
   void _scrollToBottom() {
@@ -128,21 +140,17 @@ class _ChatPageState extends State<ChatPage> {
     Clipboard.setData(ClipboardData(text: text));
   }
 
-  void _regenerateResponse(List<ChatMessage> messages) {
+  void _regenerateResponse(List<ChatMessage> messages) async {
     if (_isLoading || messages.isEmpty) return;
 
-    if (messages.isNotEmpty && !messages.last.isUser) {
+    if (!messages.last.isUser) {
       setState(() => messages.removeLast());
     }
 
     setState(() => _isLoading = true);
 
-    Future.delayed(const Duration(seconds: 1), () {
-      final botMessage = ChatMessage(
-        text: _mockResponse,
-        isUser: false,
-        timestamp: DateTime.now(),
-      );
+    try {
+      final botMessage = await _repository.getNextMessage(_messages);
 
       setState(() {
         messages.add(botMessage);
@@ -150,7 +158,16 @@ class _ChatPageState extends State<ChatPage> {
       });
 
       _scrollToBottom();
-    });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showError(e.toString());
+    }
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: AppColors.alertRed),
+    );
   }
 
   Widget _buildMessageBubble(ChatMessage message) {

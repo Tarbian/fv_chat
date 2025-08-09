@@ -1,4 +1,6 @@
-abstract class MockData {
+// ignore_for_file: unnecessary_string_escapes
+
+class MockDataManager {
   static const mockResponse = """
 ---
 
@@ -236,4 +238,9 @@ It converts "HTML", but keep intact partial entries like "xxxHTMLyyy" and so on.
 *here be dragons*
 :::
 """;
+
+  String getMockResponse() {
+    return mockResponse;
+  }
+
 }
