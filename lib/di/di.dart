@@ -11,11 +11,11 @@ final getIt = GetIt.instance;
 
 void setupDI() {
   // Ollama
-  // getIt.registerSingleton<AIConfig>(OllamaConfig());
+  // getIt.registerSingleton<OllamaConfig>(OllamaConfig());
   // getIt.registerSingleton<AIGenerator>(OllamaGenerator(config: getIt<OllamaConfig>()));
 
   // Groq
-  getIt.registerSingleton<AIConfig>(GroqConfig());
+  getIt.registerSingleton<GroqConfig>(GroqConfig());
   getIt.registerSingleton<AIGenerator>(GroqGenerator(config: getIt<GroqConfig>()));
 
   getIt.registerFactory<AIRepositoryImpl>(
