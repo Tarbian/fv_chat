@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fv_chat/di/di.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fv_chat/domain/entities/chat_message.dart';
+import 'package:fv_chat/ui/bloc/chat_cubit.dart';
 import 'package:fv_chat/ui/styles/app_colors.dart';
 import 'package:fv_chat/ui/styles/app_text_styles.dart';
 import 'package:fv_chat/ui/widgets/chat_bubble.dart';
 import 'package:fv_chat/ui/widgets/input_row.dart';
 import 'package:fv_chat/ui/widgets/small_button.dart';
-import 'package:fv_chat/data/repository/ai_repository_impl.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -18,10 +18,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
-  final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
-  final _repository = getIt<AIRepositoryImpl>();
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -30,49 +27,63 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.darkGrey800,
-      appBar: AppBar(
-        backgroundColor: AppColors.darkGrey800,
-        title: Text(
-          'AI Provider',
-          style: AppTextStyles.h1.copyWith(color: AppColors.white),
-        ),
-        centerTitle: true,
-        elevation: 2,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-      ),
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Column(
-          children: [
-            Expanded(
-              child: _messages.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Ask something!',
-                        style: AppTextStyles.backgoundHint,
-                      ),
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        final message = _messages[index];
-                        return _buildMessageBubble(message);
-                      },
-                    ),
+    return BlocProvider(
+      create: (_) => ChatCubit(),
+      child: BlocConsumer<ChatCubit, ChatState>(
+        listener: (context, state) {
+          _scrollToBottom();
+        },
+        builder: (context, state) {
+          final cubit = context.read<ChatCubit>();
+          final messages = state.messages;
+
+          return Scaffold(
+            backgroundColor: AppColors.darkGrey800,
+            appBar: AppBar(
+              backgroundColor: AppColors.darkGrey800,
+              title: Text('AI Provider',
+                  style: AppTextStyles.h1.copyWith(color: AppColors.white)),
+              centerTitle: true,
+              elevation: 2,
+              scrolledUnderElevation: 0,
+              surfaceTintColor: Colors.transparent,
             ),
-            InputRow(
-              controller: _messageController,
-              onSend: _sendMessage,
-              isWaitingForResponse: _isLoading,
+            body: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: messages.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'Ask something!',
+                              style: AppTextStyles.backgoundHint,
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.all(16),
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              final message = messages[index];
+                              return _buildMessageBubble(message, cubit);
+                            },
+                          ),
+                  ),
+                  InputRow(
+                    controller: _messageController,
+                    onSend: () {
+                      cubit.sendMessage(_messageController.text);
+                      _messageController.clear();
+                    },
+                    isWaitingForResponse: state.isLoading,
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -84,44 +95,8 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  Future<void> _sendMessage() async {
-    if (_isLoading || _messageController.text.trim().isEmpty) return;
-
-    final inputText = _messageController.text.trim();
-
-    final userMessage = ChatMessage(
-      text: inputText,
-      isUser: true,
-      timestamp: DateTime.now(),
-    );
-
-    setState(() {
-      _messages.add(userMessage);
-      _isLoading = true;
-    });
-
-    _messageController.clear();
-    _scrollToBottom();
-
-    try {
-      final botMessage = await _repository.getNextMessage(_messages);
-
-      setState(() {
-        _messages.add(botMessage);
-        _isLoading = false;
-      });
-
-      _scrollToBottom();
-    } catch (e) {
-      setState(() {
-        _messages.removeLast();
-        _messageController.text = inputText;
-        _isLoading = false;
-      });
-
-      _scrollToBottom();
-      _showError(e.toString());
-    }
+  void _copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
   }
 
   void _scrollToBottom() {
@@ -136,41 +111,7 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void _copyToClipboard(String text) {
-    Clipboard.setData(ClipboardData(text: text));
-  }
-
-  void _regenerateResponse(List<ChatMessage> messages) async {
-    if (_isLoading || messages.isEmpty) return;
-
-    if (!messages.last.isUser) {
-      setState(() => messages.removeLast());
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final botMessage = await _repository.getNextMessage(_messages);
-
-      setState(() {
-        messages.add(botMessage);
-        _isLoading = false;
-      });
-
-      _scrollToBottom();
-    } catch (e) {
-      setState(() => _isLoading = false);
-      _showError(e.toString());
-    }
-  }
-
-  void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), backgroundColor: AppColors.alertRed),
-    );
-  }
-
-  Widget _buildMessageBubble(ChatMessage message) {
+  Widget _buildMessageBubble(ChatMessage message, ChatCubit cubit) {
     final isBot = !message.isUser;
 
     return Padding(
@@ -202,7 +143,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 SmallButton(
                   icon: const Icon(Icons.refresh),
-                  onPressed: () => _regenerateResponse(_messages),
+                  onPressed: cubit.regenerateLast,
                 ),
               ],
             ),
