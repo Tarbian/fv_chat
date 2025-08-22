@@ -1,32 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fv_chat/domain/entities/chat_message.dart';
-import 'package:fv_chat/data/repository/ai_repository_impl.dart';
-import 'package:fv_chat/di/di.dart';
+import 'package:fv_chat/domain/repository/ai_repository.dart';
+import 'package:fv_chat/ui/bloc/chat_state.dart';
 
-class ChatState {
-  final List<ChatMessage> messages;
-  final bool isLoading;
-
-  const ChatState({
-    this.messages = const [],
-    this.isLoading = false,
-  });
-
-  ChatState copyWith({
-    List<ChatMessage>? messages,
-    bool? isLoading,
-  }) {
-    return ChatState(
-      messages: messages ?? this.messages,
-      isLoading: isLoading ?? this.isLoading,
-    );
-  }
-}
 
 class ChatCubit extends Cubit<ChatState> {
-  final AIRepositoryImpl _repository = getIt<AIRepositoryImpl>();
+  final AIRepository _repository;
 
-  ChatCubit() : super(const ChatState());
+  ChatCubit({required AIRepository repository})
+      : _repository = repository,
+        super(const ChatState());
+
 
   Future<void> sendMessage(String text) async {
     if (state.isLoading || text.trim().isEmpty) return;
