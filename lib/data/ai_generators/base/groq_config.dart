@@ -6,7 +6,7 @@ class GroqConfig implements AIConfig {
   String get apiKey => dotenv.env['GROQ_API_KEY'] ?? '';
 
   @override
-  String get model => 'qwen/qwen3-32b';
+  String get model => 'gemma2-9b-it';
 
   @override
   int get maxTokens => 128;
