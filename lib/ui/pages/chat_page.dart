@@ -21,80 +21,119 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _scrollController = ScrollController();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<ChatCubit>(),
-      child: Scaffold(
-        backgroundColor: AppColors.darkGrey800,
-        appBar: AppBar(
+  Widget build(BuildContext context) => BlocProvider(
+        create: (_) => getIt<ChatCubit>(),
+        child: Scaffold(
           backgroundColor: AppColors.darkGrey800,
-          title: Text(
-            'AI Provider',
-            style: AppTextStyles.h1.copyWith(color: AppColors.white),
+          appBar: AppBar(
+            backgroundColor: AppColors.darkGrey800,
+            title: Text(
+              'AI Assistant',
+              style: AppTextStyles.h1.copyWith(color: AppColors.white),
+            ),
+            centerTitle: true,
+            elevation: 2,
+            scrolledUnderElevation: 0,
+            surfaceTintColor: Colors.transparent,
+            iconTheme: const IconThemeData(color: AppColors.white),
           ),
-          centerTitle: true,
-          elevation: 2,
-          scrolledUnderElevation: 0,
-          surfaceTintColor: Colors.transparent,
-        ),
-        body: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: BlocConsumer<ChatCubit, ChatState>(
-            listenWhen: (previous, current) =>
-                previous.messages != current.messages,
-            listener: (context, state) => _scrollToBottom(),
-            builder: (context, state) {
-              final cubit = context.read<ChatCubit>();
-              final messages = state.messages;
+          body: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: BlocConsumer<ChatCubit, ChatState>(
+              listenWhen: (previous, current) =>
+                  previous.messages != current.messages ||
+                  previous.errorMessage != current.errorMessage,
+              listener: (context, state) {
+                if (state.messages.isNotEmpty) {
+                  _scrollToBottom();
+                }
 
-              return Column(
-                children: [
-                  Expanded(
-                    child: messages.isEmpty
-                        ? const Center(
+                if (state.errorMessage != null) {
+                  if (state.lastFailedMessage != null) {
+                    _messageController.text = state.lastFailedMessage!;
+                  }
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
                             child: Text(
-                              'Ask something!',
-                              style: AppTextStyles.backgoundHint,
+                              state.errorMessage!,
+                              style: const TextStyle(color: Colors.white),
                             ),
-                          )
-                        : ListView.builder(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.all(16),
-                            itemCount: messages.length,
-                            itemBuilder: (context, index) {
-                              final message = messages[index];
-                              return MessageBubble(
-                                message: message,
-                                onCopy: () => Clipboard.setData(
-                                    ClipboardData(text: message.text)),
-                                onRegenerate: () =>
-                                    context.read<ChatCubit>().regenerateLast(),
-                              );
-                            },
                           ),
-                  ),
-                  InputRow(
-                    controller: _messageController,
-                    onSend: () {
-                      cubit.sendMessage(_messageController.text);
-                      _messageController.clear();
-                    },
-                    isWaitingForResponse: state.isLoading,
-                  ),
-                ],
-              );
-            },
+                        ],
+                      ),
+                      backgroundColor: AppColors.alertRed,
+                      duration: const Duration(seconds: 4),
+                      behavior: SnackBarBehavior.floating,
+                      action: SnackBarAction(
+                        label: 'OK',
+                        textColor: Colors.white,
+                        onPressed: () => context.read<ChatCubit>().clearError(),
+                      ),
+                    ),
+                  );
+
+                  context.read<ChatCubit>().clearError();
+                }
+              },
+              builder: (context, state) {
+                final cubit = context.read<ChatCubit>();
+                final messages = state.messages;
+
+                return Column(
+                  children: [
+                    Expanded(
+                      child: messages.isEmpty
+                          ? Center(
+                              child: Text(
+                                'Ask me anything!',
+                                style: AppTextStyles.h2.copyWith(
+                                  color: AppColors.grey200,
+                                ),
+                              ),
+                            )
+                          : ListView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(16),
+                              itemCount: messages.length,
+                              itemBuilder: (context, index) {
+                                final message = messages[index];
+                                return MessageBubble(
+                                  message: message,
+                                  onCopy: () => Clipboard.setData(
+                                      ClipboardData(text: message.text)),
+                                  onRegenerate: () => context
+                                      .read<ChatCubit>()
+                                      .regenerateLast(),
+                                );
+                              },
+                            ),
+                    ),
+                    InputRow(
+                      controller: _messageController,
+                      onSend: () {
+                        final text = _messageController.text.trim();
+                        if (text.isNotEmpty && !state.isLoading) {
+                          cubit.sendMessage(text);
+                          _messageController.clear();
+                        }
+                      },
+                      isLoading: state.isLoading,
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   @override
   void dispose() {

@@ -18,6 +18,8 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$ChatState {
   List<ChatMessage> get messages => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
+  String? get errorMessage => throw _privateConstructorUsedError;
+  String? get lastFailedMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
@@ -31,7 +33,11 @@ abstract class $ChatStateCopyWith<$Res> {
   factory $ChatStateCopyWith(ChatState value, $Res Function(ChatState) then) =
       _$ChatStateCopyWithImpl<$Res, ChatState>;
   @useResult
-  $Res call({List<ChatMessage> messages, bool isLoading});
+  $Res call(
+      {List<ChatMessage> messages,
+      bool isLoading,
+      String? errorMessage,
+      String? lastFailedMessage});
 }
 
 /// @nodoc
@@ -51,6 +57,8 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState>
   $Res call({
     Object? messages = null,
     Object? isLoading = null,
+    Object? errorMessage = freezed,
+    Object? lastFailedMessage = freezed,
   }) {
     return _then(_value.copyWith(
       messages: null == messages
@@ -61,6 +69,14 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastFailedMessage: freezed == lastFailedMessage
+          ? _value.lastFailedMessage
+          : lastFailedMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -73,7 +89,11 @@ abstract class _$$ChatStateImplCopyWith<$Res>
       __$$ChatStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<ChatMessage> messages, bool isLoading});
+  $Res call(
+      {List<ChatMessage> messages,
+      bool isLoading,
+      String? errorMessage,
+      String? lastFailedMessage});
 }
 
 /// @nodoc
@@ -91,6 +111,8 @@ class __$$ChatStateImplCopyWithImpl<$Res>
   $Res call({
     Object? messages = null,
     Object? isLoading = null,
+    Object? errorMessage = freezed,
+    Object? lastFailedMessage = freezed,
   }) {
     return _then(_$ChatStateImpl(
       messages: null == messages
@@ -101,6 +123,14 @@ class __$$ChatStateImplCopyWithImpl<$Res>
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastFailedMessage: freezed == lastFailedMessage
+          ? _value.lastFailedMessage
+          : lastFailedMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -108,8 +138,11 @@ class __$$ChatStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$ChatStateImpl implements _ChatState {
-  const _$ChatStateImpl(
-      {final List<ChatMessage> messages = const [], this.isLoading = false})
+  _$ChatStateImpl(
+      {final List<ChatMessage> messages = const [],
+      this.isLoading = false,
+      this.errorMessage = null,
+      this.lastFailedMessage = null})
       : _messages = messages;
 
   final List<ChatMessage> _messages;
@@ -124,10 +157,16 @@ class _$ChatStateImpl implements _ChatState {
   @override
   @JsonKey()
   final bool isLoading;
+  @override
+  @JsonKey()
+  final String? errorMessage;
+  @override
+  @JsonKey()
+  final String? lastFailedMessage;
 
   @override
   String toString() {
-    return 'ChatState(messages: $messages, isLoading: $isLoading)';
+    return 'ChatState(messages: $messages, isLoading: $isLoading, errorMessage: $errorMessage, lastFailedMessage: $lastFailedMessage)';
   }
 
   @override
@@ -137,12 +176,20 @@ class _$ChatStateImpl implements _ChatState {
             other is _$ChatStateImpl &&
             const DeepCollectionEquality().equals(other._messages, _messages) &&
             (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading));
+                other.isLoading == isLoading) &&
+            (identical(other.errorMessage, errorMessage) ||
+                other.errorMessage == errorMessage) &&
+            (identical(other.lastFailedMessage, lastFailedMessage) ||
+                other.lastFailedMessage == lastFailedMessage));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(_messages), isLoading);
+      runtimeType,
+      const DeepCollectionEquality().hash(_messages),
+      isLoading,
+      errorMessage,
+      lastFailedMessage);
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
@@ -154,14 +201,20 @@ class _$ChatStateImpl implements _ChatState {
 }
 
 abstract class _ChatState implements ChatState {
-  const factory _ChatState(
+  factory _ChatState(
       {final List<ChatMessage> messages,
-      final bool isLoading}) = _$ChatStateImpl;
+      final bool isLoading,
+      final String? errorMessage,
+      final String? lastFailedMessage}) = _$ChatStateImpl;
 
   @override
   List<ChatMessage> get messages;
   @override
   bool get isLoading;
+  @override
+  String? get errorMessage;
+  @override
+  String? get lastFailedMessage;
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
